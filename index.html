@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply - Aprende Inglés</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                dark: {
+                  background: '#0f172a', // slate-900
+                  surface: '#1e293b',    // slate-800
+                  container: '#334155', // slate-700
+                }
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        /* --- Estilos Generales --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        .hidden { display: none; }
+        .dark body { background-color: var(--tw-colors-dark-background); color: white; }
+
+        /* --- Estilos Pantalla de Carga (Splash Screen) MODIFICADO --- */
+        #splash-screen { 
+            display: grid; 
+            place-items: center; 
+            height: 100vh; 
+            width: 100vw; 
+            background-color: #f8fafc; /* Fondo claro */
+            font-family: 'Poppins', sans-serif; 
+            text-align: center; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 100; 
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .dark #splash-screen { background-color: #0f172a; }
+        #splash-screen.fade-out { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .splash-container { display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+        
+        .logo-container { margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1.25rem; }
+        .logo-icon { position: relative; width: 80px; height: 80px; background: linear-gradient(135deg, #a855f7, #6d28d9); border-radius: 28%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(109, 40, 217, 0.2), 0 6px 6px rgba(109, 40, 217, 0.2); transform: scale(0) rotate(-45deg); opacity: 0; }
+        .logo-icon::after { content: ''; position: absolute; bottom: 12px; left: -12px; width: 0; height: 0; border-top: 15px solid transparent; border-bottom: 15px solid transparent; border-right: 20px solid #6d28d9; transform: rotate(40deg); filter: brightness(0.9); }
+        .letter-a { opacity: 0; font-size: 48px; font-weight: 600; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .logo-text { font-size: 64px; font-weight: 600; color: #4c1d95; display: flex; overflow: hidden; }
+        .dark .logo-text { color: #ddd6fe; }
+        .logo-text span { display: block; transform: translateY(100%); opacity: 0; }
+        
+        .intro-text {
+            margin-top: 1.5rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem; /* text-xl */
+            color: #4b5563; /* gray-600 */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fade-in-up 0.6s ease-out 0.7s forwards;
+            max-width: 500px;
+        }
+        .dark .intro-text {
+            color: #9ca3af; /* gray-400 */
+        }
+        #start-button { margin-top: 2rem; padding: 0.75rem 2rem; font-size: 1.125rem; font-family: 'Inter', sans-serif; font-weight: 600; color: white; background: linear-gradient(135deg, #FF9966, #FF6666); border: none; border-radius: 9999px; cursor: pointer; box-shadow: 0 8px 15px rgba(255, 102, 102, 0.25); transition: transform 0.2s ease, box-shadow 0.2s ease; transform: scale(0); animation: pop-in-button 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.0s forwards; }
+        #start-button:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 20px rgba(255, 102, 102, 0.3); }
+        
+        /* Animaciones ajustadas */
+        .animate .logo-icon { animation: pop-in 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards; }
+        .animate .letter-a { animation: fade-in 0.5s ease-out 0.6s forwards; }
+        .animate .logo-text span { animation: slide-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        .animate .logo-text span:nth-child(1) { animation-delay: 0.8s; } 
+        .animate .logo-text span:nth-child(2) { animation-delay: 0.85s; } 
+        .animate .logo-text span:nth-child(3) { animation-delay: 0.9s; } 
+        .animate .logo-text span:nth-child(4) { animation-delay: 0.95s; }
+        
+        @keyframes pop-in { from { transform: scale(0) rotate(-45deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0%); opacity: 1; } }
+        @keyframes pop-in-button { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 600px) { .logo-icon { width: 60px; height: 60px; } .letter-a { font-size: 36px; } .logo-text { font-size: 48px; } .logo-container { gap: 0.75rem; } .intro-text { font-size: 1.125rem; } }
+        
+        /* --- Estilos de Componentes --- */
+        .gradient-text { background: linear-gradient(to right, #3b82f6, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .dark .gradient-text { background: linear-gradient(to right, #60a5fa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .audio-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background-color: #e0e7ff; color: #4f46e5; transition: all 0.2s ease; }
+        .audio-btn:hover { background-color: #c7d2fe; }
+        .dark .audio-btn { background-color: #312e81; color: #a5b4fc; }
+        .dark .audio-btn:hover { background-color: #4338ca; }
+        .audio-btn.listening { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); } 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); } }
+        .recognition-result { display: block; margin-top: 4px; font-style: italic; color: #6b7280; padding-left: 1rem; }
+        .dark .recognition-result { color: #9ca3af; }
+        .highlight-word { background-color: #ffdab9; color: #4b5563; border-radius: 8px; padding: 2px 6px; transition: all 0.1s ease-in-out; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .dark .highlight-word { background-color: #334155; color: #fca5a5; }
+        .theme-toggle-new-style { background-color: #f1f5f9; border-radius: 9999px; width: 48px; height: 48px; position: relative; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; display: flex; justify-content: center; align-items: center; }
+        .dark .theme-toggle-new-style { background-color: #334155; }
+        .theme-toggle-new-style .icon { width: 24px; height: 24px; color: #4f46e5; transition: all 0.3s ease; }
+        .dark .theme-toggle-new-style .icon { color: #e2e8f0; }
+        .header-title-container { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .header-logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #a855f7, #6d28d9); border-radius: 28%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(109, 40, 217, 0.2); position: relative; }
+        .header-logo-icon::after { content: ''; position: absolute; bottom: 6px; left: -6px; width: 0; height: 0; border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 12px solid #6d28d9; transform: rotate(40deg); filter: brightness(0.9); }
+        .header-logo-icon .letter-a { font-size: 28px; font-weight: 600; color: white; opacity: 1; }
+        .header-logo-text { font-size: 2.25rem; font-weight: 600; color: #4c1d95; display: flex; gap: 2px; }
+        .dark .header-logo-text { color: #d1d5db; }
+        .lesson-card.completed { opacity: 0.7; }
+        .lesson-card.completed .gradient-text, .lesson-card.completed p { opacity: 1; }
+
+        /* Estilos para Gráfico de Progreso */
+        .progress-ring { position: relative; width: 60px; height: 60px; }
+        .progress-ring__svg { transform: rotate(-90deg); }
+        .progress-ring__circle { transition: stroke-dashoffset 0.5s ease-out; }
+        .progress-ring__text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+
+        /* Estilos para la selección de voz */
+        #voice-selection-control { display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; margin-bottom: 1rem; }
+        .voice-select-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        .dark .voice-select-btn {
+            background-color: rgba(51, 65, 85, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .voice-select-btn:not(.disabled):hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .dark .voice-select-btn:not(.disabled):hover {
+            background-color: rgba(71, 85, 105, 0.7);
+        }
+        .voice-select-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .dark .voice-select-btn.active {
+            background-color: #818cf8;
+            color: #1e1b4b;
+            border-color: #818cf8;
+        }
+        .voice-select-btn .voice-icon { font-size: 20px; transition: opacity 0.3s; }
+        .voice-select-btn.disabled { cursor: not-allowed; opacity: 0.6; }
+
+        /* Icono de carga */
+        .voice-select-btn .loader {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid currentColor;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+        }
+        .voice-select-btn.loading .loader { display: inline-block; }
+        .voice-select-btn.loading .voice-icon { display: none; }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-dark-background text-gray-800 dark:text-gray-200">
+
+    <!-- Pantalla de Carga Animada (Sin Imagen) -->
+    <div id="splash-screen">
+        <div class="splash-container">
+            <div class="logo-container">
+                <div class="logo-icon"><span class="letter-a">A</span></div>
+                <div class="logo-text"><span>p</span><span>p</span><span>l</span><span>y</span></div>
+            </div>
+            <p class="intro-text">Aprende inglés con frases útiles de forma interactiva</p>
+            <button id="start-button">¡Comenzamos!</button>
+        </div>
+    </div>
+
+    <!-- Contenido Principal de la App -->
+    <div id="app-content" class="hidden container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8 relative">
+            <div class="absolute top-0 right-0 flex items-center space-x-2">
+                <button id="theme-toggle" class="theme-toggle-new-style focus:outline-none"></button>
+            </div>
+            <div class="header-title-container">
+                <div class="header-logo-icon"><span class="letter-a">A</span></div>
+                <div class="header-logo-text"><span>p</span><span>p</span><span>l</span><span>y</span></div>
+            </div>
+            <p class="text-lg text-gray-600 dark:text-gray-400 mt-2">Tu camino para dominar el inglés profesional y cotidiano.</p>
+        </header>
+        
+        <div id="category-selection" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- Las tarjetas de categoría se generarán aquí con JS -->
+        </div>
+
+        <div id="lessons-list-container" class="hidden">
+            <button onclick="goBackToCategories()" class="mb-4 text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a categorías</button>
+            <h2 id="lessons-title" class="text-2xl font-bold mb-4 text-center"></h2>
+            <div id="lessons-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <div id="lesson-content-container" class="hidden bg-white dark:bg-dark-surface p-6 rounded-lg shadow-lg">
+            <button onclick="goBackToLessons()" class="mb-4 text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a lecciones</button>
+            <h2 id="lesson-title-content" class="text-3xl font-bold mb-4"></h2>
+            
+            <img id="lesson-image" src="" alt="Imagen de la lección" class="w-full h-48 object-cover rounded-lg mb-6 shadow-md hidden">
+            
+            <div id="voice-selection-control">
+                <button id="female-voice-btn" onclick="selectVoice('female')" class="voice-select-btn loading" disabled>
+                    <i class="fa-solid fa-venus voice-icon"></i>
+                    <div class="loader"></div>
+                    <span>Femenina</span>
+                </button>
+                <button id="male-voice-btn" onclick="selectVoice('male')" class="voice-select-btn loading" disabled>
+                    <i class="fa-solid fa-mercury voice-icon"></i>
+                    <div class="loader"></div>
+                    <span>Masculina</span>
+                </button>
+            </div>
+
+            <div id="global-speed-control" class="flex items-center justify-end mb-4">
+                <label for="global-speed-select" class="text-sm font-medium mr-2">Velocidad Global:</label>
+                <select id="global-speed-select" onchange="setGlobalSpeed(this)" class="bg-gray-200 dark:bg-dark-container text-gray-800 dark:text-gray-200 text-sm rounded py-1 pl-2 pr-8 border border-gray-300 dark:border-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="0.5">Lento</option>
+                    <option value="1.0" selected>Normal</option>
+                    <option value="1.2">Rápido</option>
+                </select>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-2 border-b pb-2 border-gray-200 dark:border-dark-container">Diálogo</h3>
+                <div id="lesson-dialogue" class="space-y-4 text-sm md:text-base"></div>
+            </div>
+            
+            <div id="lesson-extras-container" class="mt-8 space-y-4">
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const lessonsData = {
+            cotidiana: { title: 'Vida Cotidiana', icon: 'fa-house', color: 'cyan', lessons: [ 
+                { id: 'c1', title: 'Ordering a Coffee', subtitle: 'Aprende a pedir tu bebida favorita.', image_url: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=1974&auto=format&fit=crop', dialogue: [{ speaker: 'Barista', text: 'Hi there! What can I get for you today?' }, { speaker: 'Tú', text: 'Hello, I\'d like a large latte, please.' }, { speaker: 'Barista', text: 'Sure thing. Anything else?' }, { speaker: 'Tú', text: 'No, that\'s all. Thanks.' }], dialogue_es: [{ speaker: 'Barista', text: '¡Hola! ¿Qué te pongo hoy?' }, { speaker: 'Tú', text: 'Hola, quisiera un latte grande, por favor.' }, { speaker: 'Barista', text: 'Claro. ¿Algo más?' }, { speaker: 'Tú', text: 'No, eso es todo. Gracias.' }], tips: ["<b>I'd like...</b> es una forma más educada y común de decir 'I want' (quiero) al ordenar.", "<b>Sure thing</b> es una respuesta informal y amigable que significa 'claro que sí' o 'por supuesto'.", "<b>Will that be all?</b> es la pregunta estándar para saber si terminaste de ordenar."] }, 
+                { id: 'c2', title: 'Asking for Directions', subtitle: 'Nunca te pierdas en una ciudad nueva.', image_url: 'https://images.unsplash.com/photo-1528642474498-1af0c17fd8c3?q=80&w=2069&auto=format&fit=crop', dialogue: [{ speaker: 'Tú', text: 'Excuse me, how can I get to the train station?' }, { speaker: 'Local', text: 'Of course. Go straight ahead for two blocks, then turn left. You can\'t miss it.' }], dialogue_es: [{ speaker: 'Tú', text: 'Disculpe, ¿cómo puedo llegar a la estación de tren?' }, { speaker: 'Local', text: 'Por supuesto. Sigue recto dos manzanas y luego gira a la izquierda. No tiene pérdida.' }], tips: ["Empieza con <b>Excuse me</b> para llamar la atención de alguien educadamente.", "<b>You can't miss it</b> es una expresión común para decir que algo es muy fácil de encontrar.", "<b>Not at all</b> es una forma enfática de decir 'no' o 'de ninguna manera'."], phrasal_verbs: [{verb: "Get to", meaning: "Llegar a un lugar o destino."}] } 
+            ] },
+            profesional: { title: 'Vida Profesional', icon: 'fa-briefcase', color: 'indigo', lessons: [ 
+                { id: 'p1', title: 'A Professional Introduction', subtitle: 'Preséntate con confianza en el trabajo.', image_url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop', dialogue: [{ speaker: 'Manager', text: 'Everyone, I\'d like you to meet our new marketing specialist, Alex.' }, { speaker: 'Alex (Tú)', text: 'Hello everyone. It\'s a pleasure to be here. I\'m looking forward to working with you all.' }], dialogue_es: [{ speaker: 'Jefe', text: 'A todos, me gustaría que conozcan a nuestro nuevo especialista en marketing, Alex.' }, { speaker: 'Alex (Tú)', text: 'Hola a todos. Es un placer estar aquí. Tengo muchas ganas de trabajar con todos ustedes.' }], tips: ["<b>I'd like to introduce...</b> es la frase estándar y formal para presentar a alguien.", "<b>We're glad to have you</b> es una forma cálida y profesional de dar la bienvenida a alguien."], phrasal_verbs: [{verb: "Look forward to", meaning: "Esperar algo con entusiasmo o ilusión."}] }, 
+                { id: 'p2', title: 'Writing a Formal Email', subtitle: 'Comunica de forma clara y profesional.', image_url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=2070&auto=format&fit=crop', dialogue: [{ speaker: 'Subject', text: 'Meeting Follow-up' }, { speaker: 'Body', text: 'Dear Mr. Smith, As discussed, I am attaching the project proposal for your review. Please do not hesitate to reach out if you have any questions. Best regards, Jane Doe.' }], dialogue_es: [{ speaker: 'Asunto', text: 'Seguimiento de la reunión' }, { speaker: 'Cuerpo', text: 'Estimado Sr. Smith, Como comentamos, adjunto la propuesta del proyecto para su revisión. Por favor, no dude en contactarme si tiene alguna pregunta. Saludos cordiales, Jane Doe.' }], tips: ["Usa <b>Dear Mr./Ms. [Apellido]</b> para un saludo formal.", "<b>As discussed</b> (como conversamos) es útil para referirse a una conversación previa.", "<b>Please do not hesitate to reach out</b> es una forma muy profesional de decir 'no dudes en contactarme'."], phrasal_verbs: [{verb: "Follow-up", meaning: "Hacer un seguimiento o dar continuación a algo."}, {verb: "Reach out", meaning: "Contactar o intentar comunicarse con alguien."}] } 
+            ] },
+            viajes: { title: 'Inglés para Viajes', icon: 'fa-plane-departure', color: 'teal', lessons: [ 
+                { id: 'v1', title: 'En el aeropuerto', subtitle: 'Frases clave para el check-in y seguridad.', image_url: 'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?q=80&w=2070&auto=format&fit=crop', dialogue: [{ speaker: 'Agente', text: 'Passport and ticket, please.' }, { speaker: 'Tú', text: 'Here you go.' }, { speaker: 'Agente', text: 'Did you pack this bag yourself?' }], dialogue_es: [{ speaker: 'Agente', text: 'Pasaporte y billete, por favor.' }, { speaker: 'Tú', text: 'Aquí tiene.' }, { speaker: 'Agente', text: '¿Empacaste esta maleta tú mismo?' }], tips: ["<b>Here you are</b> o <b>Here you go</b> se usan al entregar algo a alguien.", "<b>Gate</b> se refiere a la puerta de embarque."], phrasal_verbs: [{verb: "Check in", meaning: "Registrarse (en el aeropuerto, en un hotel, etc.)."}] }, 
+                { id: 'v2', title: 'En el hotel', subtitle: 'Cómo registrarse y pedir ayuda.', image_url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop', dialogue: [{ speaker: 'Recepcionista', text: 'Welcome. Do you have a reservation?' }, { speaker: 'Tú', text: 'Yes, I\'m checking in. The reservation is under the name Smith.' }], dialogue_es: [{ speaker: 'Recepcionista', text: 'Bienvenido. ¿Tiene una reserva?' }, { speaker: 'Tú', text: 'Sí, vengo a registrarme. La reserva está a nombre de Smith.' }], tips: ["Usa la frase <b>under the name [Apellido]</b> para indicar a nombre de quién está la reservación.", "<b>Key card</b> es la tarjeta que funciona como llave."], phrasal_verbs: [{verb: "Check in", meaning: "Registrarse (en el aeropuerto, en un hotel, etc.)."}]} 
+            ] },
+            finanzas: { title: 'Términos Financieros', icon: 'fa-chart-line', color: 'yellow', lessons: [ 
+                { id: 'f1', title: 'Opening a Bank Account', subtitle: 'Frases clave para trámites bancarios.', image_url: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=2070&auto=format&fit=crop', dialogue: [{ speaker: 'Tú', text: 'I would like to open a checking account, please.' }, { speaker: 'Banker', text: 'Certainly. What documents do I need to provide?' }], dialogue_es: [{ speaker: 'Tú', text: 'Me gustaría abrir una cuenta corriente, por favor.' }, { speaker: 'Banquero', text: 'Claro. ¿Qué documentos necesito?' }], tips: ["<b>Checking account</b> es una cuenta corriente para uso diario.", "<b>Proof of address</b> es un documento que prueba dónde vives, como un recibo de servicios (<b>utility bill</b>)."], phrasal_verbs: [{verb: "Provide for", meaning: "Proporcionar o suministrar algo."}] }, 
+                { id: 'f2', title: 'Investing Fundamentals', subtitle: 'Comprende los conceptos básicos de inversión.', image_url: 'https://images.unsplash.com/photo-1624996379697-f01d168b1a52?q=80&w=2070&auto=format&fit=crop', dialogue: [{ speaker: 'Advisor', text: 'Welcome. To get started, could you tell me about your investment goals?' }, { speaker: 'Tú', text: 'I\'d like to learn about stocks and bonds.' }], dialogue_es: [{ speaker: 'Asesor', text: 'Bienvenido. Para empezar, ¿cuáles son sus objetivos de inversión?' }, { speaker: 'Tú', text: 'Me gustaría aprender sobre acciones y bonos.' }], tips: ["<b>Stocks</b> (acciones) y <b>Bonds</b> (bonos) son los dos tipos de inversión más comunes.", "La frase <b>'not putting all your eggs in one basket'</b> es un dicho popular que significa no arriesgarlo todo en una sola cosa."], phrasal_verbs: [{verb: "Get started", meaning: "Empezar o comenzar algo."}]} 
+            ] }
+        };
+        
+        const appState = { currentCategory: null, currentLessonId: null, isSpeaking: false, currentVoice: 'female' };
+        
+        const splashScreen = document.getElementById('splash-screen');
+        const startButton = document.getElementById('start-button');
+        const appContent = document.getElementById('app-content');
+        const categorySelection = document.getElementById('category-selection');
+        const lessonsListContainer = document.getElementById('lessons-list-container');
+        const lessonsTitle = document.getElementById('lessons-title');
+        const lessonsList = document.getElementById('lessons-list');
+        const lessonContentContainer = document.getElementById('lesson-content-container');
+        const lessonTitleContent = document.getElementById('lesson-title-content');
+        const lessonDialogue = document.getElementById('lesson-dialogue');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        
+        let globalSpeechSpeed = 1.0;
+        let femaleVoice = null;
+        let maleVoice = null;
+
+        function goBackToCategories() {
+            lessonsListContainer.classList.add('hidden');
+            categorySelection.classList.remove('hidden');
+            localStorage.removeItem('lastCategory');
+            localStorage.removeItem('lastLessonId');
+        }
+
+        function goBackToLessons() {
+            lessonContentContainer.classList.add('hidden');
+            lessonsListContainer.classList.remove('hidden');
+            if (speechSynthesis.speaking) speechSynthesis.cancel();
+        }
+
+        function toggleLessonComplete(lessonId, checkbox) {
+            let completedLessons = JSON.parse(localStorage.getItem('completedLessons')) || [];
+            const lessonCard = checkbox.closest('.lesson-card');
+            if (checkbox.checked) {
+                if (!completedLessons.includes(lessonId)) completedLessons.push(lessonId);
+                lessonCard.classList.add('completed');
+            } else {
+                completedLessons = completedLessons.filter(id => id !== lessonId);
+                lessonCard.classList.remove('completed');
+            }
+            localStorage.setItem('completedLessons', JSON.stringify(completedLessons));
+            updateCategoryStats();
+        }
+
+        function renderCategoryCards() {
+            categorySelection.innerHTML = '';
+            Object.keys(lessonsData).forEach(key => {
+                const category = lessonsData[key];
+                const card = document.createElement('button');
+                card.className = `category-card flex flex-col items-center justify-center gap-2 bg-${category.color}-100 dark:bg-${category.color}-900/50 text-${category.color}-800 dark:text-white font-semibold py-4 px-6 rounded-lg shadow-md hover:bg-${category.color}-200 dark:hover:bg-${category.color}-800/50 focus:outline-none focus:ring-2 focus:ring-${category.color}-500 focus:ring-opacity-50 transition duration-300`;
+                card.onclick = () => showLessons(key);
+                
+                card.innerHTML = `
+                    <div class="progress-ring" id="progress-${key}">
+                        <svg class="progress-ring__svg" width="60" height="60">
+                            <circle class="text-gray-300 dark:text-gray-600" stroke="currentColor" stroke-width="6" fill="transparent" r="27" cx="30" cy="30"/>
+                            <circle class="progress-ring__circle text-${category.color}-500" stroke="currentColor" stroke-width="6" fill="transparent" r="27" cx="30" cy="30" style="stroke-dasharray: 169.65; stroke-dashoffset: 169.65;"/>
+                        </svg>
+                        <div class="progress-ring__text">
+                            <i class="fa-solid ${category.icon} text-xl"></i>
+                        </div>
+                    </div>
+                    <span>${category.title}</span>
+                    <div id="stats-text-${key}" class="text-xs font-medium text-gray-600 dark:text-gray-400">0 / ${category.lessons.length}</div>
+                `;
+                categorySelection.appendChild(card);
+            });
+            updateCategoryStats();
+        }
+
+        function updateCategoryStats() {
+            const completedLessons = JSON.parse(localStorage.getItem('completedLessons')) || [];
+            Object.keys(lessonsData).forEach(key => {
+                const category = lessonsData[key];
+                const total = category.lessons.length;
+                const completed = completedLessons.filter(id => id.startsWith(key.charAt(0))).length;
+                const percentage = total > 0 ? (completed / total) : 0;
+                
+                const ring = document.querySelector(`#progress-${key} .progress-ring__circle`);
+                const text = document.querySelector(`#stats-text-${key}`);
+                const iconContainer = document.querySelector(`#progress-${key} .progress-ring__text`);
+                
+                if (ring && text) {
+                    const circumference = 2 * Math.PI * ring.r.baseVal.value;
+                    const offset = circumference - percentage * circumference;
+                    ring.style.strokeDashoffset = offset;
+                    text.textContent = `${completed} / ${total}`;
+                    
+                    if (percentage === 1) {
+                       iconContainer.innerHTML = `<i class="fa-solid fa-check text-xl text-green-500"></i>`;
+                    } else {
+                       iconContainer.innerHTML = `<i class="fa-solid ${category.icon} text-xl"></i>`;
+                    }
+                }
+            });
+        }
+
+        function showLessons(categoryKey) {
+            appState.currentCategory = categoryKey;
+            categorySelection.classList.add('hidden');
+            lessonsListContainer.classList.remove('hidden');
+            
+            const category = lessonsData[categoryKey];
+            lessonsTitle.textContent = `Lecciones de ${category.title}`;
+            lessonsList.innerHTML = '';
+            
+            const completedLessons = JSON.parse(localStorage.getItem('completedLessons')) || [];
+
+            category.lessons.forEach(lesson => {
+                const isCompleted = completedLessons.includes(lesson.id);
+                const lessonCard = document.createElement('div');
+                lessonCard.className = `lesson-card bg-white dark:bg-dark-surface p-4 rounded-lg shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 ${isCompleted ? 'completed' : ''}`;
+                lessonCard.onclick = (event) => {
+                    if (event.target.type !== 'checkbox') showLessonContent(lesson.id);
+                };
+                lessonCard.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-grow mr-4">
+                             <h3 class="text-xl font-semibold gradient-text">${lesson.title}</h3>
+                             <p class="text-gray-500 dark:text-gray-400 mt-1">${lesson.subtitle}</p>
+                        </div>
+                        <div class="flex-shrink-0 flex items-center">
+                           <input type="checkbox" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md focus:ring-indigo-500 cursor-pointer" id="check-${lesson.id}" onclick="toggleLessonComplete('${lesson.id}', this)" ${isCompleted ? 'checked' : ''}>
+                        </div>
+                    </div>
+                `;
+                lessonsList.appendChild(lessonCard);
+            });
+        }
+        
+        function showLessonContent(lessonId) {
+            appState.currentLessonId = lessonId;
+            const lesson = lessonsData[appState.currentCategory].lessons.find(l => l.id === lessonId);
+            
+            lessonsListContainer.classList.add('hidden');
+            lessonContentContainer.classList.remove('hidden');
+            
+            localStorage.setItem('lastCategory', appState.currentCategory);
+            localStorage.setItem('lastLessonId', lessonId);
+            
+            lessonTitleContent.textContent = lesson.title;
+            
+            const lessonImage = document.getElementById('lesson-image');
+            if (lesson.image_url) {
+                lessonImage.src = lesson.image_url;
+                lessonImage.alt = lesson.title;
+                lessonImage.classList.remove('hidden');
+            } else {
+                lessonImage.classList.add('hidden');
+            }
+
+            renderDialogue(lesson.dialogue, lesson.dialogue_es);
+            renderLessonExtras(lesson.tips, lesson.phrasal_verbs);
+            updateVoiceSelectionUI();
+        }
+
+        function renderDialogue(dialogue_en, dialogue_es) {
+            lessonDialogue.innerHTML = '';
+            dialogue_en.forEach((line, index) => {
+                const dialogDiv = document.createElement('div');
+                dialogDiv.className = 'bg-gray-50 dark:bg-dark-container p-4 rounded-lg flex items-start space-x-4 shadow-sm';
+                dialogDiv.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-sm font-bold text-blue-600 dark:text-blue-200">${line.speaker.charAt(0)}</div>
+                    <div class="flex-grow">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-lg">${line.speaker}</span>
+                            <button class="audio-btn" onclick="speakText(document.getElementById('dialogue-text-${index}'))"><i class="fa-solid fa-volume-high"></i></button>
+                        </div>
+                        <p id="dialogue-text-${index}" class="text-gray-800 dark:text-gray-200 mt-1">${line.text}</p>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm italic">${dialogue_es[index].text}</p>
+                        <div class="flex items-center mt-2">
+                           <button class="audio-btn mr-2 record-btn" onclick="startSpeechRecognition(this)"><i class="fa-solid fa-microphone"></i></button>
+                           <span class="recognition-result"></span>
+                        </div>
+                    </div>
+                `;
+                lessonDialogue.appendChild(dialogDiv);
+            });
+        }
+
+        function renderLessonExtras(tips, phrasalVerbs) {
+            const container = document.getElementById('lesson-extras-container');
+            container.innerHTML = ''; 
+            let finalHtml = '';
+
+            if (tips && tips.length > 0) {
+                finalHtml += `
+                    <div class="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-indigo-800 dark:text-indigo-200 flex items-center"><i class="fa-solid fa-lightbulb mr-2"></i>Notas y Tips</h3>
+                        <ul class="space-y-2 list-disc list-inside text-indigo-700 dark:text-indigo-300 pl-2">
+                            ${tips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (phrasalVerbs && phrasalVerbs.length > 0) {
+                finalHtml += `
+                    <div class="bg-emerald-50 dark:bg-emerald-900/30 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-emerald-800 dark:text-emerald-200 flex items-center"><i class="fa-solid fa-puzzle-piece mr-2"></i>Verbos Frasales (Phrasal Verbs)</h3>
+                        <ul class="space-y-3 text-emerald-700 dark:text-emerald-300 pl-2">
+                            ${phrasalVerbs.map(pv => `<li><strong>${pv.verb}:</strong> ${pv.meaning}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = finalHtml;
+        }
+        
+        function setGlobalSpeed(selectElement) { globalSpeechSpeed = parseFloat(selectElement.value); }
+
+        async function loadVoices() {
+            const waitForVoices = () => {
+                return new Promise(resolve => {
+                    const voices = speechSynthesis.getVoices();
+                    if (voices.length > 0) return resolve(voices);
+                    
+                    speechSynthesis.onvoiceschanged = () => resolve(speechSynthesis.getVoices());
+
+                    let attempts = 0;
+                    const interval = setInterval(() => {
+                        const currentVoices = speechSynthesis.getVoices();
+                        if (currentVoices.length > 0 || attempts > 20) {
+                            clearInterval(interval);
+                            resolve(currentVoices);
+                        }
+                        attempts++;
+                    }, 100);
+                });
+            };
+
+            const voices = await waitForVoices();
+            const femaleBtn = document.getElementById('female-voice-btn');
+            const maleBtn = document.getElementById('male-voice-btn');
+
+            femaleBtn.classList.remove('loading');
+            maleBtn.classList.remove('loading');
+
+            if (voices.length > 0) {
+                const usVoices = voices.filter(voice => voice.lang === 'en-US');
+                femaleVoice = usVoices.find(v => /female/i.test(v.name) && /neural/i.test(v.name)) || usVoices.find(v => /female/i.test(v.name)) || usVoices.find(v => /zira|samantha|natasha/i.test(v.name)) || null;
+                maleVoice = usVoices.find(v => /male/i.test(v.name) && /neural/i.test(v.name)) || usVoices.find(v => /male/i.test(v.name)) || usVoices.find(v => /david|alex/i.test(v.name)) || null;
+
+                if (femaleVoice) { femaleBtn.disabled = false; femaleBtn.classList.remove('disabled'); }
+                if (maleVoice) { maleBtn.disabled = false; maleBtn.classList.remove('disabled'); }
+            } else {
+                console.warn("No se pudieron cargar las voces de síntesis de voz.");
+            }
+            
+            updateVoiceSelectionUI();
+        }
+        
+        function selectVoice(gender) {
+            if ((gender === 'female' && !femaleVoice) || (gender === 'male' && !maleVoice)) return;
+            appState.currentVoice = gender;
+            localStorage.setItem('preferredVoice', gender);
+            updateVoiceSelectionUI();
+        }
+
+        function updateVoiceSelectionUI() {
+            const femaleBtn = document.getElementById('female-voice-btn');
+            const maleBtn = document.getElementById('male-voice-btn');
+            femaleBtn.classList.toggle('active', appState.currentVoice === 'female');
+            maleBtn.classList.toggle('active', appState.currentVoice === 'male');
+        }
+        
+        function speakText(textElement) {
+            if (speechSynthesis.speaking) speechSynthesis.cancel();
+            
+            const textToSpeak = textElement.textContent;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'en-US';
+            utterance.rate = globalSpeechSpeed;
+            utterance.voice = appState.currentVoice === 'male' ? maleVoice : femaleVoice;
+            
+            if (!utterance.voice) console.warn("Voz preferida no encontrada, usando la voz por defecto.");
+            
+            speechSynthesis.speak(utterance);
+        }
+        
+        function startSpeechRecognition(button) {
+            const resultContainer = button.parentElement.querySelector('.recognition-result');
+            if (!('webkitSpeechRecognition' in window)) {
+                resultContainer.textContent = 'Reconocimiento de voz no soportado.';
+                return;
+            }
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            button.classList.add('listening');
+            recognition.onresult = (event) => { resultContainer.textContent = `Dijiste: "${event.results[0][0].transcript}"`; };
+            recognition.onerror = (event) => { resultContainer.textContent = `Error: ${event.error}.`; };
+            recognition.onend = () => { button.classList.remove('listening'); };
+            recognition.start();
+        }
+
+        function initializeApp() {
+            const savedVoice = localStorage.getItem('preferredVoice');
+            if (savedVoice) appState.currentVoice = savedVoice;
+
+            const savedCategory = localStorage.getItem('lastCategory');
+            const savedLessonId = localStorage.getItem('lastLessonId');
+
+            if (savedCategory && savedLessonId && lessonsData[savedCategory]) {
+                splashScreen.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                showLessons(savedCategory);
+                showLessonContent(savedLessonId);
+            } else {
+                document.querySelector('.splash-container').classList.add('animate');
+                startButton.addEventListener('click', () => {
+                    splashScreen.classList.add('fade-out');
+                    setTimeout(() => {
+                        splashScreen.classList.add('hidden');
+                        appContent.classList.remove('hidden');
+                    }, 500); 
+                });
+            }
+
+            renderCategoryCards();
+            loadTheme();
+            loadVoices();
+            
+            themeToggleBtn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+                updateThemeIcon();
+            });
+        }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            // Forzamos el tema claro al inicio, ignorando la preferencia del sistema o el tema guardado.
+            // Para volver al comportamiento original, descomenta las siguientes líneas y comenta la que fuerza el tema claro.
+            /*
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            */
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            themeToggleBtn.innerHTML = isDarkMode ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0015.354 20.354z" /></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
